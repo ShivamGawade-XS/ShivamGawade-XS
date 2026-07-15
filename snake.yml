@@ -1,0 +1,47 @@
+# ═══════════════════════════════════════════════════════════════════════════
+#  GitHub Actions — Contribution Snake Animation
+#  @ShivamGawade-XS
+#
+#  SETUP (one-time):
+#  1. Place this file at:  .github/workflows/snake.yml
+#     inside your ShivamGawade-XS profile repo
+#  2. Go to Settings → Actions → General
+#     → Workflow permissions → select "Read and write permissions" → Save
+#  3. Go to Actions tab → select "Generate Snake" → Run workflow manually
+#  4. After it runs, an "output" branch is created with the SVG files
+#  5. The snake in your README will start working automatically
+#
+#  The workflow then auto-runs every day at midnight UTC via cron.
+# ═══════════════════════════════════════════════════════════════════════════
+
+name: Generate Snake
+
+on:
+  schedule:
+    - cron: "0 0 * * *"      # runs daily at midnight UTC
+  workflow_dispatch:           # allows manual trigger from Actions tab
+  push:
+    branches:
+      - main
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Generate GitHub Contribution Snake (dark theme)
+        uses: Platane/snk/svg-only@v3
+        with:
+          github_user_name: ShivamGawade-XS
+          outputs: |
+            dist/github-contribution-grid-snake.svg
+            dist/github-contribution-grid-snake-dark.svg?palette=github-dark
+
+      - name: Push snake SVG to output branch
+        uses: crazy-max/ghaction-github-pages@v3
+        with:
+          target_branch: output
+          build_dir: dist
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
